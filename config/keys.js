@@ -1,3 +1,3 @@
 module.exports = {
-  secretOrKey: "secrete",
+  secretOrKey: "secrete001secrete002",
 };
