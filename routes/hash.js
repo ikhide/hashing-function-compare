@@ -3,6 +3,7 @@ const { SHA3, SHAKE } = require("sha3");
 const bcrypt = require("bcrypt");
 const { pbkdf2, pbkdf2Sync, scrypt } = require("crypto");
 const salt = require("../config/keys").secretOrKey;
+const argon2 = require("argon2");
 
 //create an array of 1 to 1000
 const array1000 = Array.from({ length: 1000 }, (v, k) => k + 1);
@@ -156,9 +157,9 @@ router.post("/bcryptAsync", async (req, res) => {
 
     //hash the array and return time to complete
     const start2 = new Date().getTime();
-    // await Promise.all(
-    //   array1000000.map((item) => bcrypt.hash(item.toString(), 10))
-    // );
+    await Promise.all(
+      array1000000.map((item) => bcrypt.hash(item.toString(), 10))
+    );
     const end2 = new Date().getTime();
     const time2 = end2 - start2;
 
@@ -279,5 +280,42 @@ const scryptHash = (password, salt, keylen, options) => {
     });
   });
 };
+
+//argon2i async hash
+router.post("/argon2", async (req, res) => {
+  try {
+    //hash the array and return time to complete
+    const start = new Date().getTime();
+    await Promise.all(
+      array1000.map((item) =>
+        argon2.hash(item.toString(), {
+          type: argon2.argon2id,
+          salt: Buffer.from(salt, "utf-8"),
+        })
+      )
+    );
+    const end = new Date().getTime();
+    const time1 = end - start;
+
+    //hash the array and return time to complete
+    const start2 = new Date().getTime();
+    await Promise.all(
+      array1000000.map((item) =>
+        argon2.hash(item.toString(), {
+          type: argon2.argon2id,
+          salt: Buffer.from(salt, "utf-8"),
+        })
+      )
+    );
+    const end2 = new Date().getTime();
+    const time2 = end2 - start2;
+
+    //return the time to complete
+    res.json({ "1000 numbers": time1, "1000000 numbers": time2 });
+  } catch (err) {
+    console.log({ err });
+    res.status(500).json({ err });
+  }
+});
 
 module.exports = router;

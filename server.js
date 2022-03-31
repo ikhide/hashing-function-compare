@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 });
 
 //use routes
-app.use("/", require("./routes/users"));
+app.use("/", require("./routes/hash"));
 
 const port = process.env.PORT || 5001;
 
